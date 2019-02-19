@@ -1,21 +1,28 @@
 package sentenceTokenizer
 
 import (
-	"fmt"
+	// "fmt"
 	"github.com/qubies/stopwords"
-	"gopkg.in/jdkato/prose.v2"
+	// "gopkg.in/jdkato/prose.v2"
+	"gopkg.in/neurosnap/sentences.v1"
+	"gopkg.in/neurosnap/sentences.v1/english"
 )
 
-func Sentences(input string) []string {
-	doc, err := prose.NewDocument(
-		input,
-		prose.WithExtraction(false), prose.WithTagging(false), prose.WithTokenization(false))
+var tokenizer *sentences.DefaultSentenceTokenizer
+
+func init() {
+	var err error
+	tokenizer, err = english.NewSentenceTokenizer(nil)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
-	var list []string
-	for _, sent := range doc.Sentences() {
-		list = append(list, stopwords.Remove(sent.Text))
+}
+
+func Sentences(input string) []string {
+	sentences := tokenizer.Tokenize(input)
+	list := make([]string, len(sentences))
+	for i, sent := range sentences {
+		list[i] = stopwords.Remove(sent.Text)
 	}
 	return list
 }
